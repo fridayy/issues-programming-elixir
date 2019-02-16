@@ -3,15 +3,14 @@ defmodule Issues.CLI do
   @default_count 4
 
   def main(argv) do
-    parse(argv)
+    argv
+    |> parse()
     |> process()
   end
 
   def parse(argv) do
-    OptionParser.parse!(argv,
-      switches: [help: :boolean],
-      aliases: [h: :help]
-    )
+    argv
+    |> OptionParser.parse!(switches: [help: :boolean], aliases: [h: :help])
     |> elem(1)
     |> handle_args()
   end
@@ -24,15 +23,18 @@ defmodule Issues.CLI do
     IO.puts("""
     usage: issues <user> <project> [ count | #{@default_count} ]
     """)
+
     System.halt(0)
   end
 
-  defp process({user, project, _count}) do
-    GithubIssues.fetch(user, project)
-      |> decode_response()
+  defp process({user, project, count}) do
+    {user, project, count}
+    |> GithubIssues.fetch()
+    |> decode_response()
   end
 
   defp decode_response({:ok, body}), do: body
+
   defp decode_response({:error, error}) do
     IO.puts(:stderr, "An error occurred while fetching from Github: #{error["message"]}")
     System.halt(2)
