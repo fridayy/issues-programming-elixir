@@ -3,7 +3,10 @@ defmodule Issues.GithubIssues do
   @github_url Application.get_env(:issues, :github_url)
   @http_client Application.get_env(:issues, :http_client)
 
+  require Logger
+
   def fetch({user, project, count}) do
+    Logger.info("fetching #{count} issues for #{user}/#{project}")
     {user, project}
     |> issues_url()
     |> @http_client.get(@user_agent)
@@ -12,7 +15,6 @@ defmodule Issues.GithubIssues do
     |> Stream.take(count)
     |> Stream.map(&to_issue/1)
     |> Enum.to_list()
-    |> Issues.Printer.print
   end
 
   defp issues_url({user, project}),
@@ -31,8 +33,10 @@ defmodule Issues.GithubIssues do
 
   defp extract_or_error({:ok, issues}), do: issues
 
-  defp extract_or_error({:err, reason}) do
-    IO.puts("An error occurred: #{reason}")
+  defp extract_or_error({:error, _}) do
+    Logger.error("Could not find user / project or the combination.")
+    :timer.sleep(100)
+    System.halt(2)
   end
 
 

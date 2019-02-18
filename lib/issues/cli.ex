@@ -30,13 +30,6 @@ defmodule Issues.CLI do
   defp process({user, project, count}) do
     {user, project, count}
     |> GithubIssues.fetch()
-    |> decode_response()
-  end
-
-  defp decode_response({:ok, body}), do: body
-
-  defp decode_response({:error, error}) do
-    IO.puts(:stderr, "An error occurred while fetching from Github: #{error["message"]}")
-    System.halt(2)
+    |> Issues.Printer.print()
   end
 end
