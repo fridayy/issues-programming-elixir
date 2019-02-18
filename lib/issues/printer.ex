@@ -19,9 +19,10 @@ defmodule Issues.Printer do
   end
 
   defp format_title(title) do
-    cond do
-      String.length(title) > @max_title_length -> title |> String.slice(0..@max_title_length) |> Kernel.<>("...")
-      true -> title
+    if String.length(title) > @max_title_length do
+       title |> String.slice(0..@max_title_length) |> Kernel.<>("...")
+    else
+      title
     end
   end
 
